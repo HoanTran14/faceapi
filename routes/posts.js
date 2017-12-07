@@ -45,7 +45,7 @@ router.post("/poststatus", function (req, res) {
 
 });
 //getliststatus
-router.post("/getliststatus2", function (req, res) {
+router.post("/getliststatus3", function (req, res) {
 	if (!req.body) return res.sendStatus(400);
 	if (!req.body.id) {
 		res.send({code: 0, mes: "NULL!", data: {}});
