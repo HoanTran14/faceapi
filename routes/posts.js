@@ -52,9 +52,14 @@ router.post("/getliststatus", function (req, res) {
 	} else {
 		data.postTable().findAll({
 				where: {state: "2"},
-				include: [data.userTable(), {model: data.cmtTable(), include: [data.userTable()]}, {
-					model: data.likeTable(),
-				}],
+				include: [
+					data.userTable(),
+					{model: data.cmtTable(), include: [data.userTable()]},
+
+					{model: data.likeTable(), include: [data.userTable()]}
+
+				
+				],
 
 				order: [['createdAt', 'DESC']]
 			})
@@ -104,20 +109,7 @@ router.post("/getstatus", function (req, res) {
 				console.log("findONE FAIL: ", err.message);
 				res.send({code: 0, mes: "Fail!", data: {}});
 			});
-		// data.postTable().findAll({
-		// 	raw: true,
-		// 	where: {idpost: req.body.id},
-		// 	include: [data.userTable(),data.cmtTable()]
-		// }).then(post => {
-		// 		console.log("findONE: ", post);
-		// 		console.log("RETURN STATUS: ");
-		// 		res.send({code: 1, mes: "success", data: post});
-		//
-		// 	})
-		// 	.catch(err => {
-		// 		console.log("findONE FAIL: ", err.message);
-		// 		res.send({code: 0, mes: "Fail!", data: {}});
-		// 	});
+
 
 	}
 	console.log(req.body);
