@@ -44,9 +44,11 @@ console.log("START APP.JS");
 //-------------------------------------------------------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------------------------------------------------------------
-app.listen(port, function () {
-	console.log("LISTEN ", port);
+// app.listen(port, function () {
+// 	console.log("LISTEN ",window.location.hostname, port);
+// });
+app.listen(process.env.PORT || port, function(){
+	console.log("LISTEN server listening on port %d in %s mode", this.address().port, app.settings.env);
 });
-
 
 
