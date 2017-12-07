@@ -45,7 +45,7 @@ router.post("/poststatus", function (req, res) {
 
 });
 //getliststatus
-router.post("/getliststatus", function (req, res) {
+router.post("/getliststatus2", function (req, res) {
 	if (!req.body) return res.sendStatus(400);
 	if (!req.body.id) {
 		res.send({code: 0, mes: "NULL!", data: {}});
@@ -58,7 +58,7 @@ router.post("/getliststatus", function (req, res) {
 
 					{model: data.likeTable(), include: [data.userTable()]}
 
-				
+
 				],
 
 				order: [['createdAt', 'DESC']]
@@ -79,7 +79,95 @@ router.post("/getliststatus", function (req, res) {
 	console.log(req.body);
 
 });
+router.post("/getliststatus", function (req, res) {
+	if (!req.body) return res.sendStatus(400);
+	if (!req.body.id) {
+		res.send({code: 0, mes: "NULL!", data: {}});
+	} else {
 
+
+		data.followTable().findAll({
+
+			where: {
+				idfb: req.body.id
+			},
+			include: [
+				{
+					model: data.userTable(),
+
+					include: [
+						{
+							model: data.postTable(),
+
+							where: {state: "1"},
+
+							include: [
+								data.userTable(),
+								{model: data.cmtTable(), include: [data.userTable()]},
+
+								{model: data.likeTable(), include: [data.userTable()]}
+
+
+							]
+						}
+					]
+				}
+			]
+		}).then(arr => {
+				//console.log("findAll: ", arr.forEach(item=>item.user.posts));
+				var ret = [];
+
+				for (var i = 0; i < arr.length; i++) {
+					ret = ret.concat(arr[i].user.posts);
+					if (i == arr.length - 1) {
+						//	res.send({code: 1, mes: "success", data: {list: ret}})
+
+
+						data.postTable().findAll({
+								where: {state: "2"},
+								include: [
+									data.userTable(),
+									{model: data.cmtTable(), include: [data.userTable()]},
+
+									{model: data.likeTable(), include: [data.userTable()]}
+
+
+								],
+
+								order: [['createdAt', 'DESC']]
+							})
+							.then(arr => {
+
+								ret = ret.concat(arr);
+								var arrs = ret.sort(function (b, a) {
+									return parseFloat(a.idpost) - parseFloat(b.idpost);
+								});
+								res.send({code: 1, mes: "success", data: {list: ret}});
+
+							})
+							.catch(err => {
+								console.log("findAll FAIL: ", err.message);
+								res.send({code: 0, mes: "Fail!", data: {}});
+							});
+
+
+						//res.send({code: 1, mes: "success", data: {list: arrs}});
+
+
+					}
+				}
+
+
+			})
+			.catch(err => {
+				console.log("findAll FAIL: ", err.message);
+				res.send({code: 0, mes: "Fail!", data: {}});
+			});
+
+	}
+	console.log(req.body);
+
+});
 router.post("/getstatus", function (req, res) {
 	if (!req.body) return res.sendStatus(400);
 	if (!req.body.id) {

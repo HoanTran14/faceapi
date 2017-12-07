@@ -53,7 +53,6 @@ router.post("/follow", function (req, res, next) {
 		.catch(err=>{
 			data.followTable().destroy({where:{
 				idfollow:req.body.idfb+"and"+req.body.idmember
-
 			}});
 			res.send({code: 0, mes: "unfollow!", data: err.message});
 		})
