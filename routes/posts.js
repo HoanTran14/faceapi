@@ -103,7 +103,7 @@ router.post("/getliststatus", function (req, res) {
 
 							include: [
 								data.userTable(),
-								{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'DESC']]},
+								{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
 
 								{model: data.likeTable(), include: [data.userTable()]}
 
@@ -127,7 +127,7 @@ router.post("/getliststatus", function (req, res) {
 								where: {state: "2"},
 								include: [
 									data.userTable(),
-									{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'DESC']]},
+									{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
 
 									{model: data.likeTable(), include: [data.userTable()]}
 
@@ -177,7 +177,7 @@ router.post("/getstatus", function (req, res) {
 		data.postTable().findOne(
 			{
 				where: {idpost: req.body.id},
-				include: [data.userTable(), {model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'DESC']]}, {
+				include: [data.userTable(), {model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]}, {
 					model: data.likeTable(),
 
 				}]
@@ -341,7 +341,7 @@ router.post("/comment", function (req, res) {
 				data.cmtTable().findAll({
 					where: {idpost: req.body.idpost},
 					include: [data.userTable()]
-					,order: [['idcmt', 'DESC']]
+					,order: [['idcmt', 'ASC']]
 				}).then(comments => res.send({code: 1, mes: "Success!", data: {comments}}))
 					.catch(err => {
 						res.send({code: 0, mes: "Fail!", data: err.toString()})
@@ -363,7 +363,7 @@ router.post("/comment", function (req, res) {
 			data.cmtTable().findAll({
 				where: {idpost: req.body.idpost},
 				include: [data.userTable()],
-				order: [['idcmt', 'DESC']]
+				order: [['idcmt', 'ASC']]
 			}).then(comments => res.send({code: 1, mes: "Success!", data: {comments}}))
 				.catch(err => {
 					res.send({code: 0, mes: "Fail!", data: err.toString()})
