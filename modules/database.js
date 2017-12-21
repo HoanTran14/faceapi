@@ -1,6 +1,7 @@
 "use strict";
 const sequeliz = require("sequelize");
 const Op = sequeliz.Op;
+
 function creat() {
 	return new sequeliz({
 		database: "d26n3cbmoiqf8",
@@ -28,8 +29,8 @@ db.authenticate()
 const usertable = require('./models/User')(db, sequeliz);
 const posttable = require('./models/Post')(db, sequeliz);
 const cmttable = require('./models/Comment')(db, sequeliz);
-const liketable =require('./models/Like')(db, sequeliz);
-const followtable =require('./models/Follow')(db, sequeliz);
+const liketable = require('./models/Like')(db, sequeliz);
+const followtable = require('./models/Follow')(db, sequeliz);
 usertable.hasMany(posttable, {
 	foreignKey: "idfb"
 
@@ -47,8 +48,8 @@ cmttable.belongsTo(posttable, {
 	foreignKey: "idpost"
 });
 
-cmttable.belongsTo(usertable,{
-	foreignKey:"idfb"
+cmttable.belongsTo(usertable, {
+	foreignKey: "idfb"
 })
 posttable.hasMany(liketable, {
 	foreignKey: "idpost"
@@ -57,17 +58,17 @@ liketable.belongsTo(posttable, {
 	foreignKey: "idpost"
 });
 
-liketable.belongsTo(usertable,{
-	foreignKey:"idfb"
+liketable.belongsTo(usertable, {
+	foreignKey: "idfb"
 });
 
-usertable.hasMany(followtable,{
-	foreignKey:"idfb"
+usertable.hasMany(followtable, {
+	foreignKey: "idfb"
 });
 
 
-followtable.belongsTo(usertable,{
-	foreignKey:"id2"
+followtable.belongsTo(usertable, {
+	foreignKey: "id2"
 
 });
 db.sync();
@@ -85,7 +86,7 @@ function Sequelize() {
 			urlavata: userFb.picture.data.url,
 			lfolow: [],
 			lfolowme: [],
-			lmyfollow:[]
+			lmyfollow: []
 		}).then(user => {
 				console.log("CREAT USER : ", user.get({plain: true}));
 				next(user);
@@ -138,21 +139,50 @@ function Sequelize() {
 	}
 
 	function createPost(post, next, errs) {
-		console.log("START CREAT POST ", post.idfb.toString())
-		posttable.create({
-			idfb: post.idfb,
-			urlimage: post.urlimage,
-			cap: post.cap,
-			state: post.state,
-			tag:post.tag
-		}).then(user => {
-				next(user);
-				console.log("CREAT POST: ", user.get({plain: true}))
-			})
-			.catch(err => {
-				errs();
-				console.log("CREAT POST FAIL: s ", err.message)
-			});
+		console.log("START CREAT POST ", post.idfb.toString());
+		var tag = "";
+		if (post.tag == null || (post.tag).length == 0) {
+			posttable.create({
+				idfb: post.idfb,
+				urlimage: post.urlimage,
+				cap: post.cap,
+				state: post.state,
+				tag: post.tag,
+				rtag:""
+			}).then(user => {
+
+					next(user);
+					console.log("CREAT POST: ", user.get({plain: true}))
+				})
+				.catch(err => {
+					errs();
+					console.log("CREAT POST FAIL: s ", err.message)
+				});
+		}
+		else
+			for (var i = 0; i < (post.tag).length; i++) {
+				tag = tag + post.tag[i] + "@";
+				if (i == (post.tag).length - 1) {
+					console.log("TAG", tag);
+					posttable.create({
+						idfb: post.idfb,
+						urlimage: post.urlimage,
+						cap: post.cap,
+						state: post.state,
+						tag: post.tag,
+						rtag:tag
+					}).then(user => {
+
+							next(user);
+							console.log("CREAT POST: ", user.get({plain: true}))
+						})
+						.catch(err => {
+							errs();
+							console.log("CREAT POST FAIL: s ", err.message)
+						});
+				}
+			}
+
 	}
 
 	function getDatabase() {
@@ -162,30 +192,35 @@ function Sequelize() {
 	function userTable() {
 		return usertable;
 	}
+
 	function cmtTable() {
 		return cmttable;
 	}
+
 	function likeTable() {
 		return liketable;
 	}
+
 	function postTable() {
 		return posttable
 	};
+
 	function Ops() {
 		return Op
 	}
+
 	function followTable() {
 		return followtable
 	}
 
-	function findUserbyFbid(id, next, error, req) {
+	function findUserbyFbid(id, next, error, fail) {
 		console.log("BYID", id)
 		usertable.findOne({
-			where: {idfb: id}, include:[{model: followtable, include: [usertable]}]
+			where: {idfb: id}, include: [{model: followtable, include: [usertable]}]
 		}).then(user => {
 				if (user == null) {
 					console.log("CREAT USER: ");
-					req();
+					fail();
 
 				}
 				else {
