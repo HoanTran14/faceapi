@@ -156,7 +156,10 @@ router.post("/getliststatus", function (req, res) {
 									var arrs = ret.sort(function (b, a) {
 										return parseFloat(a.idpost) - parseFloat(b.idpost);
 									});
-									res.send({code: 1, mes: "success", data: {list: arrs}});
+									var start=req.body.page*req.body.pagesize;
+									var end=start+req.body.pagesize;
+									console.log("GETLISTSIZE",start,end)
+									res.send({code: 1, mes: "success", data: {list: arrs.slice(start,end)}});
 
 
 									//res.send({code: 1, mes: "success", data: {list: arrs}});
@@ -171,7 +174,10 @@ router.post("/getliststatus", function (req, res) {
 										var arrs = ret.sort(function (b, a) {
 											return parseFloat(a.idpost) - parseFloat(b.idpost);
 										});
-										res.send({code: 1, mes: "success", data: {list: arrs}});
+										var start=req.body.page*req.body.pagesize;
+										var end=start+req.body.pagesize;
+										console.log("GETLISTSIZE 2",start,end)
+										res.send({code: 1, mes: "success", data: {list: arrs.slice(start,end)}});
 
 
 										//res.send({code: 1, mes: "success", data: {list: arrs}});
