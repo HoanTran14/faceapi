@@ -385,15 +385,17 @@ router.post("/comment", function (req, res) {
 		}).then(result => {
 
 
-				result.destroy();
-				data.cmtTable().findAll({
-					where: {idpost: req.body.idpost},
-					include: [data.userTable()]
-					, order: [['idcmt', 'ASC']]
-				}).then(comments => res.send({code: 1, mes: "Success!", data: {comments}}))
-					.catch(err => {
-						res.send({code: 0, mes: "Fail!", data: err.toString()})
-					})
+				result.destroy().then(a=>{
+					data.cmtTable().findAll({
+						where: {idpost: req.body.idpost},
+						include: [data.userTable()]
+						, order: [['idcmt', 'ASC']]
+					}).then(comments => res.send({code: 1, mes: "Success!", data: {comments}}))
+						.catch(err => {
+							res.send({code: 0, mes: "Fail!", data: err.toString()})
+						})
+				}).catch(a=>res.send({code: 0, mes: "Fail!", data: {}}));
+
 			}
 			)
 			.catch(err => {
