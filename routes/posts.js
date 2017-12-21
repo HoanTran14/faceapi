@@ -377,15 +377,20 @@ router.post("/comment", function (req, res) {
 	console.log(req.body);
 	if (req.body.act == "del") {
 
-		data.cmtTable().findOne({
-			where: {
-				idcmt: req.body.idcmt
-			}
-
-		}).then(result => {
 
 
-				result.destroy().then(a=>{
+				data.cmtTable().destroy({
+					where: {
+						idcmt: req.body.idcmt,
+						idpost: req.body.idpost
+						//,idfb: req.body.idfb
+					}
+
+				}).then(a=>{
+					console.log("CMT",a);
+					if (a==0){
+						res.send({code: 0, mes: "Fail!", data: {}})
+					}else
 					data.cmtTable().findAll({
 						where: {idpost: req.body.idpost},
 						include: [data.userTable()]
@@ -396,12 +401,8 @@ router.post("/comment", function (req, res) {
 						})
 				}).catch(a=>res.send({code: 0, mes: "Fail!", data: {}}));
 
-			}
-			)
-			.catch(err => {
-					res.send({code: 0, mes: "Fail!", data: {}});
-				}
-			)
+
+
 	}
 
 	if (req.body.act == "create") {
