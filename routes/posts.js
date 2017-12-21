@@ -88,7 +88,7 @@ router.post("/getliststatus", function (req, res) {
 				where: {state: "2"},
 				include: [
 					data.userTable(),
-					{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
+					{model: data.cmtTable(), include: [data.userTable()], order: [['idcmt', 'ASC']]},
 
 					{model: data.likeTable(), include: [data.userTable()]}
 
@@ -115,7 +115,11 @@ router.post("/getliststatus", function (req, res) {
 
 									include: [
 										data.userTable(),
-										{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
+										{
+											model: data.cmtTable(),
+											include: [data.userTable()],
+											order: [['idcmt', 'ASC']]
+										},
 
 										{model: data.likeTable(), include: [data.userTable()]}
 
@@ -128,39 +132,58 @@ router.post("/getliststatus", function (req, res) {
 				}).then(arr => {
 						//console.log("findAll: ", arr.forEach(item=>item.user.posts));
 						var ret = [];
-						if (arr==null||arr.length==0) {
-							//	res.send({code: 1, mes: "success", data: {list: ret}})
-							ret = ret.concat(arrr);
-							var arrs = ret.sort(function (b, a) {
-								return parseFloat(a.idpost) - parseFloat(b.idpost);
-							});
-							res.send({code: 1, mes: "success", data: {list: arrs}});
+						data.postTable().findAll({
+								where: {
+									idfb: req.body.id,
+									state: ["1", "0"]
+								},
+								include: [
+									data.userTable(),
+									{model: data.cmtTable(), include: [data.userTable()], order: [['idcmt', 'ASC']]},
+
+									{model: data.likeTable(), include: [data.userTable()]}
 
 
+								],
+
+								order: [['createdAt', 'DESC']]
+							})
+							.then(arrme => {
+								if (arr == null || arr.length == 0) {
+									//	res.send({code: 1, mes: "success", data: {list: ret}})
+									ret = ret.concat(arrr);
+									ret=ret.concat(arrme);
+									var arrs = ret.sort(function (b, a) {
+										return parseFloat(a.idpost) - parseFloat(b.idpost);
+									});
+									res.send({code: 1, mes: "success", data: {list: arrs}});
 
 
-							//res.send({code: 1, mes: "success", data: {list: arrs}});
+									//res.send({code: 1, mes: "success", data: {list: arrs}});
 
 
-						}
-						for (var i = 0; i < arr.length; i++) {
-							ret = ret.concat(arr[i].user.posts);
-							if (i == arr.length - 1) {
-								//	res.send({code: 1, mes: "success", data: {list: ret}})
-								ret = ret.concat(arrr);
-								var arrs = ret.sort(function (b, a) {
-									return parseFloat(a.idpost) - parseFloat(b.idpost);
-								});
-								res.send({code: 1, mes: "success", data: {list: arrs}});
+								}
+								for (var i = 0; i < arr.length; i++) {
+									ret = ret.concat(arr[i].user.posts);
+									if (i == arr.length - 1) {
+										//	res.send({code: 1, mes: "success", data: {list: ret}})
+										ret = ret.concat(arrr);
+										var arrs = ret.sort(function (b, a) {
+											return parseFloat(a.idpost) - parseFloat(b.idpost);
+										});
+										res.send({code: 1, mes: "success", data: {list: arrs}});
 
 
+										//res.send({code: 1, mes: "success", data: {list: arrs}});
 
 
-								//res.send({code: 1, mes: "success", data: {list: arrs}});
+									}
+								}
+								console.log("GETLISTME", arr.length)
+							}).catch(errme => {
+							console.log("GETLISTME", "FAIl", err.message)
+						})
 
-
-							}
-						}
 
 
 					})
@@ -177,13 +200,10 @@ router.post("/getliststatus", function (req, res) {
 			});
 
 
-
 	}
 	console.log(req.body);
 
 });
-
-
 
 
 router.post("/getstatus", function (req, res) {
@@ -195,9 +215,13 @@ router.post("/getstatus", function (req, res) {
 		data.postTable().findOne(
 			{
 				where: {idpost: req.body.id},
-				include: [data.userTable(), {model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]}, {
+				include: [data.userTable(), {
+					model: data.cmtTable(),
+					include: [data.userTable()],
+					order: [['idcmt', 'ASC']]
+				}, {
 
-					model: data.likeTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]
+					model: data.likeTable(), include: [data.userTable()], order: [['idcmt', 'ASC']]
 				}]
 			}
 		).then(post => {
@@ -359,7 +383,7 @@ router.post("/comment", function (req, res) {
 				data.cmtTable().findAll({
 					where: {idpost: req.body.idpost},
 					include: [data.userTable()]
-					,order: [['idcmt', 'ASC']]
+					, order: [['idcmt', 'ASC']]
 				}).then(comments => res.send({code: 1, mes: "Success!", data: {comments}}))
 					.catch(err => {
 						res.send({code: 0, mes: "Fail!", data: err.toString()})
