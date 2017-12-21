@@ -196,8 +196,8 @@ router.post("/getstatus", function (req, res) {
 			{
 				where: {idpost: req.body.id},
 				include: [data.userTable(), {model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]}, {
-					model: data.likeTable(),
 
+					model: data.likeTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]
 				}]
 			}
 		).then(post => {
