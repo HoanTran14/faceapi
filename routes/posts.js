@@ -84,78 +84,90 @@ router.post("/getliststatus", function (req, res) {
 	if (!req.body.id) {
 		res.send({code: 0, mes: "NULL!", data: {}});
 	} else {
+		data.postTable().findAll({
+				where: {state: "2"},
+				include: [
+					data.userTable(),
+					{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
+
+					{model: data.likeTable(), include: [data.userTable()]}
 
 
-		data.followTable().findAll({
+				],
 
-			where: {
-				idfb: req.body.id
-			},
-			include: [
-				{
-					model: data.userTable(),
+				order: [['createdAt', 'DESC']]
+			})
+			.then(arrr => {
+				data.followTable().findAll({
 
+					where: {
+						idfb: req.body.id
+					},
 					include: [
 						{
-							model: data.postTable(),
-
-							where: {state: "1"},
+							model: data.userTable(),
 
 							include: [
-								data.userTable(),
-								{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
+								{
+									model: data.postTable(),
 
-								{model: data.likeTable(), include: [data.userTable()]}
+									where: {state: "1"},
+
+									include: [
+										data.userTable(),
+										{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
+
+										{model: data.likeTable(), include: [data.userTable()]}
 
 
+									]
+								}
 							]
 						}
 					]
-				}
-			]
-		}).then(arr => {
-				//console.log("findAll: ", arr.forEach(item=>item.user.posts));
-				var ret = [];
-
-				for (var i = 0; i < arr.length; i++) {
-					ret = ret.concat(arr[i].user.posts);
-					if (i == arr.length - 1) {
-						//	res.send({code: 1, mes: "success", data: {list: ret}})
-
-
-						data.postTable().findAll({
-								where: {state: "2"},
-								include: [
-									data.userTable(),
-									{model: data.cmtTable(), include: [data.userTable()],order: [['idcmt', 'ASC']]},
-
-									{model: data.likeTable(), include: [data.userTable()]}
+				}).then(arr => {
+						//console.log("findAll: ", arr.forEach(item=>item.user.posts));
+						var ret = [];
+						if (arr==null||arr.length==0) {
+							//	res.send({code: 1, mes: "success", data: {list: ret}})
+							ret = ret.concat(arrr);
+							var arrs = ret.sort(function (b, a) {
+								return parseFloat(a.idpost) - parseFloat(b.idpost);
+							});
+							res.send({code: 1, mes: "success", data: {list: arrs}});
 
 
-								],
 
-								order: [['createdAt', 'DESC']]
-							})
-							.then(arr => {
 
-								ret = ret.concat(arr);
+							//res.send({code: 1, mes: "success", data: {list: arrs}});
+
+
+						}
+						for (var i = 0; i < arr.length; i++) {
+							ret = ret.concat(arr[i].user.posts);
+							if (i == arr.length - 1) {
+								//	res.send({code: 1, mes: "success", data: {list: ret}})
+								ret = ret.concat(arrr);
 								var arrs = ret.sort(function (b, a) {
 									return parseFloat(a.idpost) - parseFloat(b.idpost);
 								});
-								res.send({code: 1, mes: "success", data: {list: ret}});
-
-							})
-							.catch(err => {
-								console.log("findAll FAIL: ", err.message);
-								res.send({code: 0, mes: "Fail!", data: {}});
-							});
+								res.send({code: 1, mes: "success", data: {list: arrs}});
 
 
-						//res.send({code: 1, mes: "success", data: {list: arrs}});
 
 
-					}
-				}
+								//res.send({code: 1, mes: "success", data: {list: arrs}});
+
+
+							}
+						}
+
+
+					})
+					.catch(err => {
+						console.log("findAll FAIL: ", err.message);
+						res.send({code: 0, mes: "Fail!", data: {}});
+					});
 
 
 			})
@@ -164,10 +176,16 @@ router.post("/getliststatus", function (req, res) {
 				res.send({code: 0, mes: "Fail!", data: {}});
 			});
 
+
+
 	}
 	console.log(req.body);
 
 });
+
+
+
+
 router.post("/getstatus", function (req, res) {
 	if (!req.body) return res.sendStatus(400);
 	if (!req.body.id) {
