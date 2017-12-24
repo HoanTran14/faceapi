@@ -203,21 +203,38 @@ router.post("/getliststatus2", function (req, res) {
 });
 
 router.post("/getliststatus", function (req, res) {
+
 	if (!req.body) return res.sendStatus(400);
 	if (!req.body.id) {
 		res.send({code: 0, mes: "NULL!", data: {}});
 	} else {
+		console.log("1")
 		var ret = [];
 		data.findPubPost(function (public) {
 			ret = ret.concat(public);
-
+			console.log("2")
 
 			data.getMynonPublicPost(req.body.id, function (mynonpublic) {
 				ret = ret.concat(mynonpublic);
-
+				console.log("3")
 				data.findMyFollow(req.body.id, function (myfl) {
+					console.log("4")
+					if (myfl == null || myfl.length == 0) {
+						//	res.send({code: 1, mes: "success", data: {list: ret}})
+
+						var arrs = ret.sort(function (b, a) {
+							return parseFloat(a.idpost) - parseFloat(b.idpost);
+						});
+						var start = req.body.page * req.body.pagesize;
+						var end = start + req.body.pagesize;
+						console.log("GETLISTSIZE", start, end)
+						res.send({code: 1, mes: "success", data: {list: arrs.slice(start, end)}});
 
 
+
+
+
+					}
 					for (var i = 0; i < myfl.length; i++) {
 						if (myfl[i].user == null) {
 							console.log("GETLIST NULL");
@@ -238,6 +255,8 @@ router.post("/getliststatus", function (req, res) {
 							//res.send({code: 1, mes: "success", data: {list: arrs}});
 						}
 					}
+
+
 				}, function (err) {
 					res.send({code: 0, mes: "error", data: err.message});
 				})
@@ -485,6 +504,29 @@ router.post("/search", function (req, res, next) {
 
 			res.send({code: 0, mes: "Fail to get data!", data: err.message});
 		})
+//TODO
+
+});
+router.post("/delete", function (req, res, next) {
+	if (!req.body) return res.sendStatus(400);
+	console.log(req.body);
+
+	data.postTable().destroy({
+		where: {
+			idfb: req.body.idfb,
+			idpost: req.body.idpost
+			//,idfb: req.body.idfb
+		}
+
+	}).then(a => {
+
+		if (a == 0) {
+			res.send({code: 0, mes: "Fail!", data: {}})
+		} else
+			 res.send({code: 1, mes: "Success!", data: {}});
+
+	}).catch(a => res.send({code: 0, mes: "Fail!", data: {}}));
+
 //TODO
 
 });
