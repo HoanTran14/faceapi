@@ -97,46 +97,7 @@ function Sequelize() {
 			});
 	}
 
-	function follow(id1, id2, next, error) {
-		findUserbyFbid(id1, function (data) {
-			data.lfolow.push(id2);
-			usertable.update(
-				{lfolow: data.lfolow},
-				{where: {idfb: id1}}
-				)
-				.then(result => {
-						//todo
-						findUserbyFbid(id2, function (data) {
-							data.lfolowme.push(id1);
-							usertable.update(
-								{lfolowme: data.lfolowme},
-								{where: {id: id2}}
-								)
-								.then(result => {
-										next();
-									}
-								)
-								.catch(err => {
-										error()
-									}
-								)
-						}, function () {
-							error();
-						});
 
-						//todo
-					}
-				)
-				.catch(err => {
-						error()
-					}
-				)
-		}, function () {
-			error();
-		});
-
-
-	}
 
 	function createPost(post, next, errs) {
 		console.log("START CREAT POST ", post.idfb.toString());
@@ -148,7 +109,7 @@ function Sequelize() {
 				cap: post.cap,
 				state: post.state,
 				tag: post.tag,
-				rtag:""
+				rtag: ""
 			}).then(user => {
 
 					next(user);
@@ -170,7 +131,7 @@ function Sequelize() {
 						cap: post.cap,
 						state: post.state,
 						tag: post.tag,
-						rtag:tag
+						rtag: tag
 					}).then(user => {
 
 							next(user);
@@ -286,10 +247,83 @@ function Sequelize() {
 			});
 	}
 
+	function findPubPost(next, error) {
+		posttable.findAll({
+			where: {state: "2"},
+			include: [
+				userTable(),
+				{model: cmtTable(), include: [userTable()], order: [['idcmt', 'ASC']]},
+
+				{model: likeTable(), include: [userTable()]}
+
+
+			],
+
+			order: [['createdAt', 'DESC']]
+		}).then(data => next(data)).catch(err => error(err))
+	}
+
+	function findMyFollow(idfb, next, error) {
+		followtable.findAll({
+
+			where: {
+				idfb: idfb
+			},
+			include: [
+				{
+					model: userTable(),
+
+					include: [
+						{
+							model: postTable(),
+
+							where: {state: "1"},
+
+							include: [
+								userTable(),
+								{
+									model: cmtTable(),
+									include: [userTable()],
+									order: [['idcmt', 'ASC']]
+								},
+
+								{model: likeTable(), include: [userTable()]}
+
+
+							]
+						}
+					]
+				}
+			]
+		}).then(data => next(data)).catch(err => error(err))
+	}
+
+	function getMynonPublicPost(idfb,next,error) {
+		postTable().findAll({
+			where: {
+				idfb: idfb,
+				state: ["1", "0"]
+			},
+			include: [
+				userTable(),
+				{model: cmtTable(), include: [userTable()], order: [['idcmt', 'ASC']]},
+
+				{model: likeTable(), include: [userTable()]}
+
+
+			],
+
+			order: [['createdAt', 'DESC']]
+		}).then(data=>next(data)).catch(err=>error(err))
+	}
+
 	return {
+		getMynonPublicPost,
+		findMyFollow,
+		findPubPost,
 		cmtTable,
 		likeTable,
-		follow,
+
 		Ops,
 		findMyListPost,
 		findPostbyId,
