@@ -297,7 +297,22 @@ function Sequelize() {
 			]
 		}).then(data => next(data)).catch(err => error(err))
 	}
+	function findMyFollowYou(idfb, next, error) {
+		followtable.findAll({
 
+			where: {
+				idfb: idfb
+			}
+		}).then(data => next(data)).catch(err => error(err))
+	}
+	function findMyFollowMe(idfb, next, error) {
+		followtable.findAll({
+
+			where: {
+				id2: idfb
+			}
+		}).then(data => next(data)).catch(err => error(err))
+	}
 	function getMynonPublicPost(idfb,next,error) {
 		postTable().findAll({
 			where: {
@@ -318,6 +333,8 @@ function Sequelize() {
 	}
 
 	return {
+		findMyFollowYou,
+		findMyFollowMe,
 		getMynonPublicPost,
 		findMyFollow,
 		findPubPost,

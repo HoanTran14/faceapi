@@ -29,11 +29,27 @@ router.post("/userdetail", function (req, res, next) {
 				id2: req.body.id
 			}
 		}).then(fl => {
-			if (fl == null) {
-				res.send({code: 1, mes: "Success", data: {user, follow: false}});
-			} else {
-				res.send({code: 1, mes: "Success", data: {user, follow: true}});
-			}
+
+
+				data.findMyFollowMe(req.body.id, function (data) {
+					user.lfolowme = data;
+					console.log("FL 1",data);
+					if (fl == null) {
+						res.send({code: 1, mes: "Success", data: {user, follow: false}});
+					} else {
+						res.send({code: 1, mes: "Success", data: {user, follow: true}});
+					}
+				}, function (err) {
+					console.log("FL 2",data);
+					if (fl == null) {
+						res.send({code: 1, mes: "Success", data: {user, follow: false}});
+					} else {
+						res.send({code: 1, mes: "Success", data: {user, follow: true}});
+					}
+				})
+
+
+
 		}).catch(err => res.send({code: 1, mes: "Success", data: {user, follow: false}}))
 
 
@@ -66,8 +82,8 @@ router.post("/follow", function (req, res, next) {
 router.post("/search", function (req, res, next) {
 	if (!req.body) return res.sendStatus(400);
 	console.log(req.body);
-	var name ='%'+req.body.key+'%';
-	console.log("SEARCH",name);
+	var name = '%' + req.body.key + '%';
+	console.log("SEARCH", name);
 	data.userTable().findAll({
 
 		where: {
