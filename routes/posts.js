@@ -231,9 +231,6 @@ router.post("/getliststatus", function (req, res) {
 						res.send({code: 1, mes: "success", data: {list: arrs.slice(start, end)}});
 
 
-
-
-
 					}
 					for (var i = 0; i < myfl.length; i++) {
 						if (myfl[i].user == null) {
@@ -497,7 +494,8 @@ router.post("/search", function (req, res, next) {
 		where: {
 			rtag: {
 				[(data.Ops()).like]: name
-			}
+			},
+			state: ["1", "2"]
 		}
 	}).then(arr => res.send({code: 1, mes: "Success", data: {list: arr}}))
 		.catch(err => {
@@ -523,7 +521,7 @@ router.post("/delete", function (req, res, next) {
 		if (a == 0) {
 			res.send({code: 0, mes: "Fail!", data: {}})
 		} else
-			 res.send({code: 1, mes: "Success!", data: {}});
+			res.send({code: 1, mes: "Success!", data: {}});
 
 	}).catch(a => res.send({code: 0, mes: "Fail!", data: {}}));
 
