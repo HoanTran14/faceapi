@@ -27,7 +27,13 @@ router.post("/userdetail", function (req, res, next) {
 			where: {
 				idfb: req.body.idfb,
 				id2: req.body.id
-			}
+			},
+			include: [
+				{
+					model: data.userTable()
+
+				}
+			]
 		}).then(fl => {
 
 
