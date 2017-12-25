@@ -99,4 +99,25 @@ router.post("/search", function (req, res, next) {
 //TODO
 
 });
+router.post("/delete", function (req, res, next) {
+	if (!req.body) return res.sendStatus(400);
+	console.log(req.body);
+
+	data.userTable().destroy({
+		where: {
+			idfb: req.body.idfb
+		}
+
+	}).then(a => {
+
+		if (a == 0) {
+			res.send({code: 0, mes: "Fail!", data: {}})
+		} else
+			res.send({code: 1, mes: "Success!", data: {}});
+
+	}).catch(a => res.send({code: 0, mes: "Fail!", data: {}}));
+
+//TODO
+
+});
 module.exports = router;
